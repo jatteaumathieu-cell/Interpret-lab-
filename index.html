@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interpret Lab — Trouvez votre équivalent niche</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C; --gold-light: #E8D5A3; --dark: #0E0C0A; --dark2: #1A1714;
+    --dark3: #252220; --cream: #F5F0E8; --cream2: #EDE6D6; --text: #D4C9B0; --text-dim: #7A7060;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--dark); color:var(--text); font-family:'Raleway',sans-serif; font-weight:300; min-height:100vh; }
+
+header { background:var(–dark2); border-bottom:1px solid rgba(201,168,76,0.2); padding:20px; text-align:center; }
+.brand { font-family:‘Cormorant Garamond’,serif; font-size:22px; font-weight:300; letter-spacing:6px; color:var(–gold); text-transform:uppercase; margin-bottom:4px; }
+.tagline { font-size:10px; letter-spacing:2px; color:var(–text-dim); text-transform:uppercase; margin-bottom:16px; }
+.gold-line { width:30px; height:1px; background:var(–gold); margin:0 auto; opacity:0.4; }
+
+.main { max-width:700px; margin:0 auto; padding:24px 16px; }
+
+.intro { text-align:center; margin-bottom:24px; }
+.intro h2 { font-family:‘Cormorant Garamond’,serif; font-size:20px; font-weight:300; font-style:italic; color:var(–cream2); margin-bottom:8px; }
+.intro p { font-size:11px; color:var(–text-dim); letter-spacing:1px; line-height:1.8; }
+
+.search-wrap { position:relative; margin-bottom:16px; }
+.search-wrap input { width:100%; background:var(–dark2); border:1px solid rgba(201,168,76,0.25); color:var(–cream); font-family:‘Raleway’,sans-serif; font-size:14px; padding:16px 16px 16px 44px; outline:none; transition:border 0.2s; letter-spacing:0.5px; }
+.search-wrap input:focus { border-color:var(–gold); }
+.search-wrap input::placeholder { color:var(–text-dim); font-style:italic; }
+.search-icon { position:absolute; left:15px; top:50%; transform:translateY(-50%); color:var(–text-dim); font-size:16px; }
+
+.suggestions-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(–text-dim); margin-bottom:10px; }
+.suggestions { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:24px; }
+.sug-chip { background:transparent; border:1px solid rgba(201,168,76,0.18); color:var(–text-dim); font-family:‘Raleway’,sans-serif; font-size:11px; padding:7px 13px; cursor:pointer; transition:all 0.2s; font-style:italic; }
+.sug-chip:hover { border-color:var(–gold); color:var(–gold); }
+
+.dropdown { position:absolute; top:100%; left:0; right:0; background:var(–dark2); border:1px solid rgba(201,168,76,0.25); border-top:none; z-index:50; max-height:280px; overflow-y:auto; }
+.dropdown-item { padding:12px 16px; cursor:pointer; border-bottom:1px solid rgba(201,168,76,0.07); transition:background 0.15s; }
+.dropdown-item:hover { background:rgba(201,168,76,0.06); }
+.dropdown-item:last-child { border-bottom:none; }
+.di-name { font-family:‘Cormorant Garamond’,serif; font-size:15px; color:var(–cream); }
+.di-brand { font-size:10px; color:var(–text-dim); letter-spacing:1px; margin-top:2px; }
+
+.result-section { animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+
+.result-header { padding:16px 18px; background:var(–dark2); border:1px solid rgba(201,168,76,0.15); border-bottom:none; }
+.result-searched { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(–text-dim); margin-bottom:6px; }
+.result-perfume-name { font-family:‘Cormorant Garamond’,serif; font-size:22px; color:var(–cream); margin-bottom:2px; }
+.result-perfume-brand { font-size:11px; color:var(–gold); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.result-notes { display:flex; flex-wrap:wrap; gap:4px; }
+.note-tag { font-size:8px; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border:1px solid rgba(201,168,76,0.3); color:var(–gold); background:rgba(201,168,76,0.06); }
+
+.alts-label { padding:12px 18px 8px; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(–text-dim); background:var(–dark3); border:1px solid rgba(201,168,76,0.15); border-top:none; border-bottom:none; }
+
+.alt-card { padding:16px 18px; border-bottom:1px solid rgba(201,168,76,0.08); background:var(–dark2); display:flex; gap:14px; align-items:flex-start; border-left:1px solid rgba(201,168,76,0.15); border-right:1px solid rgba(201,168,76,0.15); transition:background 0.15s; }
+.alt-card:last-child { border-bottom:1px solid rgba(201,168,76,0.15); }
+.alt-card:hover { background:var(–dark3); }
+
+.alt-rank { font-family:‘Cormorant Garamond’,serif; font-size:24px; color:rgba(201,168,76,0.2); line-height:1; flex-shrink:0; width:24px; text-align:center; padding-top:2px; }
+.alt-body { flex:1; }
+.alt-maison { font-size:8px; letter-spacing:3px; text-transform:uppercase; color:var(–gold); margin-bottom:3px; }
+.alt-nom { font-family:‘Cormorant Garamond’,serif; font-size:18px; color:var(–cream); margin-bottom:6px; }
+.alt-why { font-size:11px; color:var(–text); line-height:1.7; margin-bottom:8px; }
+.alt-notes { display:flex; flex-wrap:wrap; gap:3px; }
+.match-badge { font-size:8px; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; background:rgba(201,168,76,0.12); color:var(–gold); border:1px solid rgba(201,168,76,0.3); flex-shrink:0; align-self:flex-start; }
+
+.no-result { padding:40px; text-align:center; border:1px solid rgba(201,168,76,0.1); background:var(–dark2); }
+.no-result p { font-family:‘Cormorant Garamond’,serif; font-size:18px; font-style:italic; color:var(–text-dim); }
+
+footer { text-align:center; padding:20px; font-size:9px; letter-spacing:2px; color:var(–text-dim); border-top:1px solid rgba(201,168,76,0.08); margin-top:32px; }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="brand">Interpret Lab</div>
+  <div class="tagline">Trouvez votre équivalent niche</div>
+  <div class="gold-line"></div>
+</header>
+
+<div class="main">
+  <div class="intro">
+    <h2>Votre client connaît un parfum grand public ?</h2>
+    <p>Tapez le nom et découvrez les équivalents niche de la boutique<br>avec des profils olfactifs similaires.</p>
+  </div>
+
+  <div style="position:relative;">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Ex: Dior Sauvage, Chanel N°5, YSL Black Opium..." oninput="handleInput()" autocomplete="off">
+    </div>
+    <div class="dropdown" id="dropdown" style="display:none"></div>
+  </div>
+
+  <div class="suggestions-label">Essayez avec</div>
+  <div class="suggestions" id="suggestions"></div>
+
+  <div id="resultSection"></div>
+</div>
+
+<footer>Interpret Lab · Équivalents niche · Catalogue boutique</footer>
+
+<script>
+// BASE MAINSTREAM — parfums grand public avec notes
+const MAINSTREAM = [
+  // DIOR
+  {nom:'Sauvage', marque:'Dior', genre:'H', notes:['agrume','boise','epice','ambre'], desc:'Bergamote, poivre, ambroxan'},
+  {nom:'J\'adore', marque:'Dior', genre:'F', notes:['floral','musc','agrume'], desc:'Ylang-ylang, jasmin, rose'},
+  {nom:'Miss Dior', marque:'Dior', genre:'F', notes:['floral','musc','boise'], desc:'Rose, pivoine, musc blanc'},
+  {nom:'Dior Homme', marque:'Dior', genre:'H', notes:['floral','boise','musc'], desc:'Iris, cèdre, cuir'},
+  {nom:'Fahrenheit', marque:'Dior', genre:'H', notes:['boise','cuir','fume','floral'], desc:'Violette, cèdre, cuir, essence de feu'},
+  {nom:'Poison Girl', marque:'Dior', genre:'F', notes:['gourmand','floral','vanille','ambre'], desc:'Rose, amande, vanille'},
+  {nom:'Hypnotic Poison', marque:'Dior', genre:'F', notes:['gourmand','vanille','ambre','musc'], desc:'Amande, vanille, musc'},
+
+  // CHANEL
+  {nom:'N°5', marque:'Chanel', genre:'F', notes:['floral','musc','ambre','vanille'], desc:'Aldéhydes, rose, jasmin, musc'},
+  {nom:'Bleu de Chanel', marque:'Chanel', genre:'H', notes:['agrume','boise','ambre','musc'], desc:'Citrus, bois de santal, cèdre'},
+  {nom:'Coco Mademoiselle', marque:'Chanel', genre:'F', notes:['agrume','floral','musc','ambre'], desc:'Orange, rose, patchouli, musc blanc'},
+  {nom:'Chance', marque:'Chanel', genre:'F', notes:['floral','agrume','musc','boise'], desc:'Citron, jasmin, cèdre'},
+  {nom:'Allure Homme Sport', marque:'Chanel', genre:'H', notes:['agrume','boise','musc','marin'], desc:'Mandarine, bois de cèdre, musc'},
+  {nom:'Gabrielle', marque:'Chanel', genre:'F', notes:['floral','musc','agrume'], desc:'Jasmin, ylang-ylang, orange'},
+
+  // YSL
+  {nom:'Black Opium', marque:'YSL', genre:'F', notes:['gourmand','cafe','vanille','floral'], desc:'Café, vanille, fleur blanche'},
+  {nom:'La Nuit de L\'Homme', marque:'YSL', genre:'H', notes:['epice','boise','ambre','musc'], desc:'Cardamome, cèdre, lavande'},
+  {nom:'Y', marque:'YSL', genre:'H', notes:['agrume','boise','ambre','musc'], desc:'Bergamote, gingembre, cèdre'},
+  {nom:'Libre', marque:'YSL', genre:'F', notes:['floral','boise','musc','ambre'], desc:'Lavande, orange blossom, cèdre'},
+  {nom:'Mon Paris', marque:'YSL', genre:'F', notes:['floral','agrume','musc','ambre'], desc:'Framboise, pivoine, musc blanc'},
+
+  // ARMANI
+  {nom:'Acqua di Giò', marque:'Armani', genre:'H', notes:['marin','agrume','boise','musc'], desc:'Bergamote, marine, bois de cèdre'},
+  {nom:'Acqua di Giò Profumo', marque:'Armani', genre:'H', notes:['marin','fume','boise','ambre'], desc:'Marine, encens, patchouli'},
+  {nom:'Si', marque:'Armani', genre:'F', notes:['floral','gourmand','ambre','musc'], desc:'Cassis, rose, vanille'},
+  {nom:'Code', marque:'Armani', genre:'H', notes:['gourmand','boise','ambre','epice'], desc:'Bergamote, olive, bois de Gaïac'},
+
+  // HUGO BOSS
+  {nom:'Boss Bottled', marque:'Hugo Boss', genre:'H', notes:['boise','epice','ambre','agrume'], desc:'Pomme, cannelle, cèdre, santal'},
+  {nom:'Bottled Night', marque:'Hugo Boss', genre:'H', notes:['boise','musc','ambre','fume'], desc:'Cardamome, violette, cèdre'},
+
+  // PACO RABANNE
+  {nom:'1 Million', marque:'Paco Rabanne', genre:'H', notes:['gourmand','epice','cuir','ambre'], desc:'Pamplemousse, cannelle, cuir, ambre'},
+  {nom:'Lady Million', marque:'Paco Rabanne', genre:'F', notes:['floral','gourmand','ambre','musc'], desc:'Néroli, gardénia, miel, patchouli'},
+  {nom:'Invictus', marque:'Paco Rabanne', genre:'H', notes:['marin','boise','ambre','agrume'], desc:'Pamplemousse, marine, bois'},
+  {nom:'Olympéa', marque:'Paco Rabanne', genre:'F', notes:['gourmand','floral','musc','ambre'], desc:'Fleur de sel, vanille, jasmin'},
+
+  // JEAN PAUL GAULTIER
+  {nom:'Le Male', marque:'Jean Paul Gaultier', genre:'H', notes:['gourmand','floral','vanille','musc'], desc:'Lavande, menthe, vanille'},
+  {nom:'Classique', marque:'Jean Paul Gaultier', genre:'F', notes:['floral','gourmand','ambre','musc'], desc:'Fleur d\'oranger, gingembre, vanille'},
+  {nom:'Scandal', marque:'Jean Paul Gaultier', genre:'F', notes:['floral','gourmand','ambre','musc'], desc:'Miel, gardénia, vétiver'},
+
+  // LANCÔME
+  {nom:'La Vie est Belle', marque:'Lancôme', genre:'F', notes:['gourmand','floral','ambre','vanille'], desc:'Iris, praline, vanille, patchouli'},
+  {nom:'Trésor', marque:'Lancôme', genre:'F', notes:['floral','ambre','musc','vanille'], desc:'Rose, iris, ambre, musc'},
+  {nom:'Idôle', marque:'Lancôme', genre:'F', notes:['floral','musc','boise'], desc:'Jasmin, rose, musc blanc'},
+
+  // GUERLAIN
+  {nom:'La Petite Robe Noire', marque:'Guerlain', genre:'F', notes:['gourmand','floral','ambre','vanille'], desc:'Cerise, rose, thé, amande'},
+  {nom:'Mon Guerlain', marque:'Guerlain', genre:'F', notes:['gourmand','floral','vanille','ambre'], desc:'Lavande, bergamote, vanille, musc'},
+  {nom:'L\'Homme Idéal', marque:'Guerlain', genre:'H', notes:['gourmand','boise','ambre','epice'], desc:'Amande, cuir, bois de cèdre'},
+  {nom:'Shalimar', marque:'Guerlain', genre:'F', notes:['gourmand','ambre','vanille','floral'], desc:'Bergamote, iris, vanille, cuir'},
+
+  // VERSACE
+  {nom:'Eros', marque:'Versace', genre:'H', notes:['agrume','boise','musc','ambre'], desc:'Menthe, pomme verte, fève tonka'},
+  {nom:'Dylan Blue', marque:'Versace', genre:'H', notes:['agrume','boise','ambre','musc'], desc:'Pamplemousse, violette, ambre'},
+  {nom:'Bright Crystal', marque:'Versace', genre:'F', notes:['floral','agrume','musc','ambre'], desc:'Grenade, pivoine, musc'},
+
+  // GIVENCHY
+  {nom:'L\'Interdit', marque:'Givenchy', genre:'F', notes:['floral','boise','musc','ambre'], desc:'Fleur d\'oranger, jasmin, vétiver'},
+  {nom:'Gentleman', marque:'Givenchy', genre:'H', notes:['boise','floral','ambre','musc'], desc:'Iris, patchouli, vanille'},
+  {nom:'Ange ou Démon', marque:'Givenchy', genre:'F', notes:['floral','boise','ambre','musc'], desc:'Lys, bois de Gaïac, ambre'},
+
+  // CAROLINA HERRERA
+  {nom:'Good Girl', marque:'Carolina Herrera', genre:'F', notes:['floral','gourmand','ambre','musc'], desc:'Jasmin, cacao, amande, musc'},
+  {nom:'212 VIP', marque:'Carolina Herrera', genre:'F', notes:['floral','gourmand','musc','ambre'], desc:'Gardénia, musc, champagne'},
+  {nom:'Bad Boy', marque:'Carolina Herrera', genre:'H', notes:['boise','epice','ambre','fume'], desc:'Sauge, cèdre, élemi'},
+
+  // BURBERRY
+  {nom:'Hero', marque:'Burberry', genre:'H', notes:['boise','epice','ambre','agrume'], desc:'Bergamote, cèdre, poivre noir'},
+  {nom:'Her', marque:'Burberry', genre:'F', notes:['floral','agrume','musc','boise'], desc:'Framboise, violette, musc blanc'},
+
+  // MONT BLANC
+  {nom:'Explorer', marque:'Mont Blanc', genre:'H', notes:['boise','epice','ambre','agrume'], desc:'Bergamote, poivre rose, labdanum'},
+  {nom:'Legend', marque:'Mont Blanc', genre:'H', notes:['boise','musc','agrume','epice'], desc:'Lavande, cèdre, musc blanc'},
+
+  // TOM FORD
+  {nom:'Black Orchid', marque:'Tom Ford', genre:'F', notes:['floral','boise','ambre','gourmand'], desc:'Truffe, ylang, orchide noire, patchouli'},
+  {nom:'Oud Wood', marque:'Tom Ford', genre:'H', notes:['oud','boise','ambre','epice'], desc:'Oud, bois de rose, cardamome'},
+  {nom:'Tobacco Vanille', marque:'Tom Ford', genre:'H', notes:['gourmand','vanille','epice','ambre'], desc:'Tabac, vanille, épices'},
+  {nom:'Noir de Noir', marque:'Tom Ford', genre:'H', notes:['floral','oud','ambre','boise'], desc:'Rose noire, oud, truffe, patchouli'},
+
+  // CREED
+  {nom:'Aventus', marque:'Creed', genre:'H', notes:['agrume','boise','fume','ambre'], desc:'Ananas, bouleau fumé, mousse de chêne'},
+  {nom:'Silver Mountain Water', marque:'Creed', genre:'H', notes:['agrume','marin','boise','musc'], desc:'Mandarine, thé vert, musc blanc'},
+  {nom:'Virgin Island Water', marque:'Creed', genre:'H', notes:['agrume','marin','gourmand','musc'], desc:'Citron vert, coco, musc'},
+
+  // HERMÈS
+  {nom:'Terre d\'Hermès', marque:'Hermès', genre:'H', notes:['boise','agrume','epice','ambre'], desc:'Orange, poivre, vétiver, silex'},
+  {nom:'Twilly d\'Hermès', marque:'Hermès', genre:'F', notes:['floral','epice','ambre','musc'], desc:'Gingembre, osmanthe, santal'},
+
+  // MAISON MARGIELA
+  {nom:'Replica Jazz Club', marque:'Maison Margiela', genre:'H', notes:['gourmand','boise','epice','ambre'], desc:'Rhum, tabac, vanille, bois'},
+  {nom:'Replica By the Fireplace', marque:'Maison Margiela', genre:'H', notes:['gourmand','boise','fume','vanille'], desc:'Châtaigne, vanille, bois de gaïac'},
+  {nom:'Replica Beach Walk', marque:'Maison Margiela', genre:'H', notes:['agrume','marin','gourmand','musc'], desc:'Bergamote, noix de coco, musc blanc'},
+
+  // THIERRY MUGLER
+  {nom:'Angel', marque:'Thierry Mugler', genre:'F', notes:['gourmand','floral','ambre','musc'], desc:'Caramel, chocolat, patchouli, vanille'},
+  {nom:'Alien', marque:'Thierry Mugler', genre:'F', notes:['floral','ambre','musc','boise'], desc:'Jasmin, bois de cachemire, ambre'},
+  {nom:'A*Men', marque:'Thierry Mugler', genre:'H', notes:['gourmand','fume','boise','epice'], desc:'Caramel, café, goudron, musc'},
+
+  // VIKTOR & ROLF
+  {nom:'Flowerbomb', marque:'Viktor & Rolf', genre:'F', notes:['floral','gourmand','ambre','musc'], desc:'Jasmin, rose, patchouli, vanille'},
+  {nom:'Spicebomb', marque:'Viktor & Rolf', genre:'H', notes:['epice','boise','fume','ambre'], desc:'Pamplemousse, poivre noir, tabac'},
+
+  // NARCISO RODRIGUEZ
+  {nom:'For Her', marque:'Narciso Rodriguez', genre:'F', notes:['musc','floral','ambre','boise'], desc:'Musc, rose, ambre'},
+
+  // BVLGARI
+  {nom:'Man in Black', marque:'Bvlgari', genre:'H', notes:['epice','boise','ambre','gourmand'], desc:'Rhum, fève tonka, cuir, ambre'},
+  {nom:'Omnia', marque:'Bvlgari', genre:'F', notes:['boise','epice','floral','ambre'], desc:'Bois de santal, cardamome, lotus'},
+
+  // RABANNE
+  {nom:'Phantom', marque:'Rabanne', genre:'H', notes:['gourmand','boise','musc','agrume'], desc:'Lavande, vétiver, vanille, citron'},
+  {nom:'Fame', marque:'Rabanne', genre:'F', notes:['floral','gourmand','musc','ambre'], desc:'Jasmin, mimosa, vanille'},
+
+  // VALENTINO
+  {nom:'Donna Born in Roma', marque:'Valentino', genre:'F', notes:['floral','gourmand','musc','ambre'], desc:'Jasmin, bourbon vanille, musc'},
+  {nom:'Uomo Born in Roma', marque:'Valentino', genre:'H', notes:['boise','gourmand','musc','epice'], desc:'Lavande, café, bois de santal'},
+
+  // DOLCE & GABBANA
+  {nom:'Light Blue', marque:'Dolce & Gabbana', genre:'F', notes:['agrume','floral','musc','marin'], desc:'Cèdre, citron de Sicile, jasmin'},
+  {nom:'The One', marque:'Dolce & Gabbana', genre:'H', notes:['boise','epice','ambre','agrume'], desc:'Basilic, cardamome, cèdre, ambre'},
+  {nom:'K by Dolce & Gabbana', marque:'Dolce & Gabbana', genre:'H', notes:['boise','agrume','epice','ambre'], desc:'Bergamote, géranium, vétiver'},
+
+  // CALVIN KLEIN
+  {nom:'CK One', marque:'Calvin Klein', genre:'H', notes:['agrume','vert','musc','floral'], desc:'Thé vert, bergamote, musc'},
+  {nom:'Eternity', marque:'Calvin Klein', genre:'F', notes:['floral','vert','musc','agrume'], desc:'Lily, muguet, santal'},
+
+  // LANVIN
+  {nom:'Éclat d\'Arpège', marque:'Lanvin', genre:'F', notes:['floral','agrume','musc','boise'], desc:'Rose, jasmin, musc blanc'},
+
+  // JIMMY CHOO
+  {nom:'Jimmy Choo', marque:'Jimmy Choo', genre:'F', notes:['floral','gourmand','ambre','musc'], desc:'Poire, jasmin, toffee'},
+
+  // KENZO
+  {nom:'Flower by Kenzo', marque:'Kenzo', genre:'F', notes:['floral','musc','ambre','boise'], desc:'Coquelicot, rose, vanille'},
+  {nom:'L\'Eau par Kenzo', marque:'Kenzo', genre:'F', notes:['floral','marin','vert','musc'], desc:'Lotus, fleur de lotus, musc'},
+];
+
+// CATALOGUE BOUTIQUE
+const BOUTIQUE = [
+  {maison:'Liquide Imaginaire',nom:'Buveur de Vent',genre:'M',notes:['marin','vert','musc']},
+  {maison:'Liquide Imaginaire',nom:'Tapis Volant',genre:'M',notes:['epice','boise','ambre']},
+  {maison:'Liquide Imaginaire',nom:'Tumultu',genre:'M',notes:['fume','boise','cuir']},
+  {maison:'Liquide Imaginaire',nom:'Désert Suave',genre:'M',notes:['ambre','epice','musc']},
+  {maison:'Liquide Imaginaire',nom:'Dom Rosa',genre:'F',notes:['floral','musc','boise']},
+  {maison:'Liquide Imaginaire',nom:'Blanche Bête',genre:'M',notes:['musc','boise','vanille']},
+  {maison:'Liquide Imaginaire',nom:'Sancti',genre:'M',notes:['epice','boise','encens']},
+  {maison:'Liquide Imaginaire',nom:'Bloody Wood',genre:'M',notes:['boise','fume','cuir']},
+  {maison:'Liquide Imaginaire',nom:'Fleur de Sable',genre:'F',notes:['floral','ambre','musc']},
+  {maison:'Liquide Imaginaire',nom:'Fortis',genre:'M',notes:['boise','ambre','cuir']},
+  {maison:'Liquide Imaginaire',nom:'Fleuve Tendre',genre:'F',notes:['floral','vert','musc']},
+  {maison:'Liquide Imaginaire',nom:"Âme du Cœur",genre:'F',notes:['floral','musc','vanille']},
+  {maison:'Sasva',nom:'Forbidden Words',genre:'M',notes:['oud','fume','ambre']},
+  {maison:'Sasva',nom:'Le Notti di Goa Palolem',genre:'M',notes:['vanille','ambre','epice']},
+  {maison:'Sasva',nom:'Junoon',genre:'M',notes:['oud','epice','ambre']},
+  {maison:'Sasva',nom:'Saaqi',genre:'M',notes:['ambre','musc','boise']},
+  {maison:'Sasva',nom:'Light of the Earth',genre:'M',notes:['boise','vert','musc']},
+  {maison:'Sasva',nom:'Rêverie de la Rose',genre:'F',notes:['floral','musc','ambre']},
+  {maison:'Maie Piou',nom:'Leathery Flesh',genre:'M',notes:['cuir','ambre','fume']},
+  {maison:'Maie Piou',nom:'Woody You',genre:'M',notes:['boise','musc','ambre']},
+  {maison:'Maie Piou',nom:'Cherry Harley',genre:'M',notes:['fume','cuir','gourmand']},
+  {maison:'Maie Piou',nom:'Honey Queen',genre:'F',notes:['gourmand','vanille','floral']},
+  {maison:'Maie Piou',nom:'Banana Oud',genre:'M',notes:['oud','gourmand','boise']},
+  {maison:'Maie Piou',nom:'Ambery Glove',genre:'M',notes:['ambre','cuir','vanille']},
+  {maison:'Maie Piou',nom:'Blond Whisky',genre:'M',notes:['gourmand','vanille','boise']},
+  {maison:"L'Orchestre Parfum",nom:'Thé Darbouka',genre:'M',notes:['vert','epice','musc']},
+  {maison:"L'Orchestre Parfum",nom:'Piano Santal',genre:'M',notes:['boise','vanille','musc']},
+  {maison:"L'Orchestre Parfum",nom:'Ambre Cello',genre:'M',notes:['ambre','boise','musc']},
+  {maison:"L'Orchestre Parfum",nom:'Cuir Kora',genre:'M',notes:['cuir','boise','musc']},
+  {maison:"L'Orchestre Parfum",nom:'Encens Asakusa',genre:'M',notes:['encens','boise','epice']},
+  {maison:'BDK Parfums',nom:"Sel d'Argent",genre:'M',notes:['marin','agrume','musc']},
+  {maison:'BDK Parfums',nom:'Citrus Riviera',genre:'M',notes:['agrume','marin','floral']},
+  {maison:'BDK Parfums',nom:'Nuit de Sable',genre:'M',notes:['ambre','musc','boise']},
+  {maison:'BDK Parfums',nom:'Rouge Smoking',genre:'M',notes:['cuir','fume','ambre']},
+  {maison:'BDK Parfums',nom:'Gris Charnel',genre:'M',notes:['boise','musc','vanille']},
+  {maison:'BDK Parfums',nom:'Oud Abramad',genre:'M',notes:['oud','ambre','boise']},
+  {maison:'BDK Parfums',nom:'Ambre Safrano',genre:'M',notes:['ambre','epice','musc']},
+  {maison:'BDK Parfums',nom:'Tabac Rose',genre:'M',notes:['floral','epice','boise']},
+  {maison:'BDK Parfums',nom:'Vanille Leather',genre:'M',notes:['vanille','cuir','ambre']},
+  {maison:'BDK Parfums',nom:'Velvet Tonka',genre:'M',notes:['vanille','ambre','gourmand']},
+  {maison:'BDK Parfums',nom:'Crème de Cuir',genre:'M',notes:['cuir','vanille','musc']},
+  {maison:'BDK Parfums',nom:'313 Saint Honoré',genre:'M',notes:['boise','cuir','ambre']},
+  {maison:'Juliette Has a Gun',nom:'Not a Perfume',genre:'F',notes:['musc']},
+  {maison:'Juliette Has a Gun',nom:'Easy Vetiver',genre:'M',notes:['boise','vert','vanille']},
+  {maison:'Juliette Has a Gun',nom:'Another Oud',genre:'M',notes:['oud','boise','ambre']},
+  {maison:'Juliette Has a Gun',nom:'Vanilla Vibe',genre:'F',notes:['vanille','musc','gourmand']},
+  {maison:'Juliette Has a Gun',nom:'Mmmm...',genre:'F',notes:['vanille','musc','ambre']},
+  {maison:'Juliette Has a Gun',nom:'Lady Vengeance',genre:'F',notes:['floral','patchouli','musc']},
+  {maison:'Martil',nom:'Révélation',genre:'M',notes:['boise','ambre','musc']},
+  {maison:'Martil',nom:'Tapis Rouge',genre:'M',notes:['epice','ambre','boise']},
+  {maison:'Martil',nom:'Ultime',genre:'M',notes:['boise','cuir','ambre']},
+  {maison:'Nota Bané',nom:'Lion Alpha',genre:'M',notes:['boise','ambre','cuir']},
+  {maison:'Nota Bané',nom:'Oudacieux',genre:'M',notes:['oud','ambre','epice']},
+  {maison:'Nota Bané',nom:'Santal Somptueux',genre:'M',notes:['boise','vanille','musc']},
+  {maison:'Soradora',nom:'Gladiator',genre:'M',notes:['boise','cuir','ambre']},
+  {maison:'Soradora',nom:'Vanuatu',genre:'M',notes:['marin','agrume','vert']},
+  {maison:'Soradora',nom:'Kamel Oud',genre:'M',notes:['oud','ambre','epice']},
+  {maison:'Atelier Mignon',nom:'Et Toujours en Été',genre:'F',notes:['agrume','floral','musc']},
+  {maison:'Atelier Mignon',nom:'Le Bonbon',genre:'F',notes:['gourmand','vanille','floral']},
+  {maison:'Atelier Mignon',nom:"L'Ambre de Tes Seins",genre:'F',notes:['ambre','vanille','musc']},
+  {maison:'Phénom',nom:'Ouragan',genre:'M',notes:['oud','ambre','fume']},
+  {maison:'Phénom',nom:'Crème de Santal',genre:'M',notes:['boise','vanille','musc']},
+  {maison:'Phénom',nom:'Ambrosia',genre:'F',notes:['floral','vanille','musc']},
+  {maison:'Atelier Materi',nom:'Black Oregon',genre:'M',notes:['boise','fume','cuir']},
+  {maison:'Atelier Materi',nom:'Burgundy Oud',genre:'M',notes:['oud','ambre','boise']},
+  {maison:'Atelier Materi',nom:'Ambre Papier',genre:'M',notes:['ambre','musc','boise']},
+  {maison:'Atelier Materi',nom:'Cacao Porcelana',genre:'M',notes:['gourmand','cafe','ambre']},
+  {maison:'Atelier Materi',nom:'Vanille Carbone',genre:'M',notes:['vanille','boise','musc']},
+  {maison:'Anatole Lebreton',nom:'Grimoire',genre:'M',notes:['fume','boise','cuir']},
+  {maison:'Anatole Lebreton',nom:'Uruk',genre:'M',notes:['oud','epice','ambre']},
+  {maison:'Anatole Lebreton',nom:'Caribe Kiss',genre:'F',notes:['agrume','floral','vert','marin']},
+  {maison:'Anatole Lebreton',nom:'Brioche',genre:'F',notes:['gourmand','vanille','musc']},
+  {maison:'Profumo di Firenze',nom:'Obscurus',genre:'M',notes:['oud','fume','boise']},
+  {maison:'Profumo di Firenze',nom:'Buontalenti',genre:'F',notes:['gourmand','vanille','floral']},
+  {maison:'Profumo di Firenze',nom:'Peccatum',genre:'M',notes:['epice','ambre','boise']},
+  {maison:'Nicolaï',nom:'Baïkal Leather',genre:'M',notes:['cuir','boise','fume']},
+  {maison:'Nicolaï',nom:'Ambre Cashmere',genre:'F',notes:['ambre','vanille','musc']},
+  {maison:'Nicolaï',nom:'New York',genre:'M',notes:['agrume','boise','musc']},
+  {maison:'Nicolaï',nom:'Fig-Tea',genre:'M',notes:['vert','agrume','musc']},
+  {maison:'Nicolaï',nom:'Macaron Bourbon',genre:'F',notes:['gourmand','vanille','musc']},
+  {maison:'Annam',nom:'Vietnamese Coffee',genre:'M',notes:['cafe','vanille','ambre']},
+  {maison:'Annam',nom:'Monsoon Tea',genre:'M',notes:['vert','agrume','musc']},
+  {maison:'Annam',nom:'Tokyo Nights',genre:'M',notes:['boise','ambre','musc']},
+  {maison:'Rania J',nom:'Oud Assam',genre:'M',notes:['oud','boise','ambre']},
+  {maison:'Rania J',nom:'Ambre Loup',genre:'M',notes:['ambre','oud','musc']},
+  {maison:'Rania J',nom:'Rose Ishtar',genre:'F',notes:['floral','oud','ambre']},
+  {maison:'Rania J',nom:'Cuir Andalou',genre:'M',notes:['cuir','boise','ambre']},
+  {maison:'Akro',nom:'Dark',genre:'M',notes:['fume','boise','cuir']},
+  {maison:'Akro',nom:'Night',genre:'M',notes:['ambre','boise','musc']},
+  {maison:'Akro',nom:'Awake',genre:'M',notes:['cafe','agrume','boise']},
+  {maison:'Akro',nom:'Malt',genre:'M',notes:['cafe','gourmand','ambre']},
+  {maison:'Akro',nom:'Smoke',genre:'M',notes:['fume','boise','cafe']},
+  {maison:'Comporta',nom:'Palafitico',genre:'M',notes:['marin','boise','musc']},
+  {maison:'Comporta',nom:'Areia Salgada',genre:'M',notes:['marin','agrume','musc']},
+  {maison:'Comporta',nom:'Trancoso',genre:'M',notes:['agrume','boise','vert']},
+  {maison:'Comporta',nom:'Bravo',genre:'M',notes:['agrume','boise','musc']},
+  {maison:'La Manufacture',nom:'Bois de Feu',genre:'M',notes:['fume','boise','ambre']},
+  {maison:'La Manufacture',nom:'Boharas',genre:'M',notes:['epice','ambre','boise']},
+  {maison:'La Manufacture',nom:'Noble',genre:'M',notes:['boise','cuir','ambre']},
+  {maison:"Parfum d'Empire",nom:'Cuir Ottoman',genre:'M',notes:['cuir','ambre','epice']},
+  {maison:"Parfum d'Empire",nom:'Ambre Russe',genre:'M',notes:['ambre','cuir','vanille']},
+  {maison:"Parfum d'Empire",nom:'Tabac Tabou',genre:'M',notes:['fume','boise','cuir']},
+  {maison:"Parfum d'Empire",nom:'Yuzu Fou',genre:'M',notes:['agrume','vert','musc']},
+  {maison:'Une Nuit Nomade',nom:'Sugar Leather',genre:'M',notes:['cuir','vanille','ambre']},
+  {maison:'Une Nuit Nomade',nom:'Spicy Road',genre:'M',notes:['epice','boise','ambre']},
+  {maison:'Une Nuit Nomade',nom:"Chemin d'Amande",genre:'F',notes:['gourmand','vanille','musc']},
+  {maison:'Harold & Maude',nom:'Follement Romantique',genre:'M',notes:['floral','ambre','musc']},
+  {maison:'Harold & Maude',nom:'Divinement Audacieux',genre:'M',notes:['epice','ambre','boise']},
+  {maison:'Stéphanie de Bruijn',nom:'My Gentleman',genre:'M',notes:['boise','cuir','ambre']},
+  {maison:'Stéphanie de Bruijn',nom:'Promenons-nous dans les Bois',genre:'M',notes:['boise','ambre','musc']},
+  {maison:'Essentiel Parfum',nom:'Bois Impérial',genre:'M',notes:['boise','ambre','musc']},
+  {maison:'Essentiel Parfum',nom:'Divin Vanille',genre:'F',notes:['vanille','musc','ambre']},
+  {maison:'Essentiel Parfum',nom:'Orange x Santal',genre:'M',notes:['agrume','boise','musc']},
+  {maison:'Essentiel Parfum',nom:'Patchouli Mania',genre:'M',notes:['boise','epice','ambre']},
+  {maison:'Essentiel Parfum',nom:'Mon Vétiver',genre:'M',notes:['boise','vert','musc']},
+  {maison:'Essentiel Parfum',nom:'Nice Bergamote',genre:'F',notes:['agrume','floral','musc']},
+  {maison:'Essentiel Parfum',nom:'Rose Magnétique',genre:'F',notes:['floral','musc','ambre']},
+  {maison:'Essentiel Parfum',nom:'Velvet Iris',genre:'F',notes:['floral','boise','musc']},
+  {maison:'Ideo Fragrances',nom:'Baklava Bliss',genre:'F',notes:['gourmand','vanille','ambre']},
+  {maison:'Ideo Fragrances',nom:'N°1',genre:'M',notes:['agrume','floral','musc']},
+  {maison:'Ideo Fragrances',nom:'N°6',genre:'M',notes:['boise','ambre','epice']},
+];
+
+const POPULAR = ['Dior Sauvage','Bleu de Chanel','Black Opium','La Vie est Belle','Aventus','1 Million','Acqua di Giò','Flowerbomb','Le Male','Angel'];
+
+let selectedMainstream = null;
+
+function init() {
+  const sugs = document.getElementById('suggestions');
+  sugs.innerHTML = POPULAR.map(n => `<button class="sug-chip" onclick="selectByName('${n}')">${n}</button>`).join('');
+}
+
+function handleInput() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const dd = document.getElementById('dropdown');
+  if (q.length < 2) { dd.style.display='none'; return; }
+  const matches = MAINSTREAM.filter(p =>
+    p.nom.toLowerCase().includes(q) || p.marque.toLowerCase().includes(q)
+  ).slice(0, 8);
+  if (matches.length === 0) { dd.style.display='none'; return; }
+  dd.innerHTML = matches.map((p,i) => `
+    <div class="dropdown-item" onclick="selectParfum(${i + MAINSTREAM.indexOf(p)})">
+      <div class="di-name">${p.nom}</div>
+      <div class="di-brand">${p.marque}</div>
+    </div>`).join('');
+  dd.style.display = 'block';
+}
+
+function selectByName(name) {
+  const idx = MAINSTREAM.findIndex(p => `${p.marque} ${p.nom}`.includes(name) || name.includes(p.nom));
+  if (idx >= 0) selectParfum(idx);
+}
+
+function selectParfum(idx) {
+  selectedMainstream = MAINSTREAM[idx];
+  document.getElementById('searchInput').value = `${selectedMainstream.marque} ${selectedMainstream.nom}`;
+  document.getElementById('dropdown').style.display = 'none';
+  showResults();
+}
+
+function scoreMatch(boutique, mainstream) {
+  const common = boutique.notes.filter(n => mainstream.notes.includes(n));
+  return common.length;
+}
+
+function showResults() {
+  const ms = selectedMainstream;
+  if (!ms) return;
+
+  // Score tous les parfums boutique
+  const scored = BOUTIQUE.map(b => ({
+    ...b,
+    score: scoreMatch(b, ms),
+    common: b.notes.filter(n => ms.notes.includes(n))
+  })).filter(b => b.score > 0).sort((a,b) => b.score - a.score).slice(0, 5);
+
+  const NOTE_LABELS = {
+    oud:'Oud',floral:'Floral',boise:'Boisé',agrume:'Agrume',vanille:'Vanille',
+    ambre:'Ambre',musc:'Musc',epice:'Épicé',cafe:'Café',cuir:'Cuir',
+    marin:'Marin',gourmand:'Gourmand',fume:'Fumé',vert:'Vert',encens:'Encens',patchouli:'Patchouli'
+  };
+
+  const matchPct = (score) => {
+    const max = ms.notes.length;
+    if (score >= max) return 'Très proche';
+    if (score >= max - 1) return 'Proche';
+    if (score >= 2) return 'Similaire';
+    return 'Inspiré de';
+  };
+
+  const whyText = (b, ms) => {
+    const common = b.notes.filter(n => ms.notes.includes(n));
+    const labels = common.map(n => NOTE_LABELS[n]).join(', ');
+    return `Partage les notes ${labels} avec ${ms.marque} ${ms.nom}.`;
+  };
+
+  const section = document.getElementById('resultSection');
+  if (scored.length === 0) {
+    section.innerHTML = `<div class="no-result"><p>Aucun équivalent trouvé dans le catalogue.</p></div>`;
+    return;
+  }
+
+  section.innerHTML = `
+    <div class="result-section">
+      <div class="result-header">
+        <div class="result-searched">Vous cherchez un équivalent de</div>
+        <div class="result-perfume-name">${ms.nom}</div>
+        <div class="result-perfume-brand">${ms.marque}</div>
+        <div class="result-notes">
+          ${ms.notes.map(n=>`<span class="note-tag">${NOTE_LABELS[n]||n}</span>`).join('')}
+        </div>
+      </div>
+      <div class="alts-label">Équivalents niche en boutique</div>
+      ${scored.map((b,i) => `
+        <div class="alt-card">
+          <div class="alt-rank">${i+1}</div>
+          <div class="alt-body">
+            <div class="alt-maison">${b.maison}</div>
+            <div class="alt-nom">${b.nom}</div>
+            <div class="alt-why">${whyText(b, ms)}</div>
+            <div class="alt-notes">
+              ${b.notes.map(n=>`<span class="note-tag">${NOTE_LABELS[n]||n}</span>`).join('')}
+            </div>
+          </div>
+          <span class="match-badge">${matchPct(b.score)}</span>
+        </div>`).join('')}
+    </div>`;
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap') && !e.target.closest('.dropdown')) {
+    document.getElementById('dropdown').style.display = 'none';
+  }
+});
+
+init();
+</script>
+
+</body>
+</html>
